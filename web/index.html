@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>合同提取 · 任务中心</title>
+    <link rel="stylesheet" href="/style.css" />
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">合同提取</p>
+        <h1>任务中心</h1>
+        <p class="subtitle">上传资料，跟踪提取进度，核对结构化结果。</p>
+      </div>
+      <div class="live"><span></span>实时更新</div>
+    </header>
+
+    <main>
+      <aside class="sidebar">
+        <button id="new-task" class="primary new-task" type="button">＋ 新建任务</button>
+        <section class="task-list">
+          <div class="list-heading">
+            <h2>任务列表</h2>
+            <span class="muted">最近任务</span>
+          </div>
+          <ul id="tasks"></ul>
+          <div class="pagination">
+            <button id="older" class="quiet" hidden>更早任务</button
+            ><button id="latest" class="quiet" hidden>返回最新</button>
+          </div>
+        </section>
+      </aside>
+
+      <div class="workflow">
+        <nav class="steps" aria-label="任务流程">
+          <button id="step-upload" type="button" aria-current="step">
+            <span>1</span> 上传资料
+          </button>
+          <button id="step-run" type="button" disabled><span>2</span> 查看执行</button>
+          <button id="step-review" type="button" disabled><span>3</span> 核对结果</button>
+        </nav>
+        <p id="notice" class="notice" role="status" hidden></p>
+
+        <section id="upload-pane" class="card detail" aria-labelledby="upload-title">
+          <div class="section-heading">
+            <p class="eyebrow">第 1 步</p>
+            <h2 id="upload-title">上传资料并提交任务</h2>
+            <p class="section-hint">提交后，系统自动保存文件并排队，无需填写任务编号。</p>
+          </div>
+          <form id="submit" class="upload-form">
+            <div class="upload-box">
+              <label for="upload-files">输入文件</label>
+              <input
+                id="upload-files"
+                name="files"
+                type="file"
+                multiple
+                required
+                aria-describedby="upload-limits"
+              />
+              <p id="upload-limits" class="section-hint">
+                最多 10 个文件，单个不超过 25 MiB，整个请求不超过 100 MiB。
+              </p>
+              <ul id="upload-list" class="upload-list" hidden></ul>
+            </div>
+            <label for="task-prompt">任务描述</label>
+            <textarea
+              id="task-prompt"
+              name="prompt"
+              rows="6"
+              placeholder="例如：提取合同编号、买卖双方和每项产品的规格，并保留原文证据。"
+              required
+            ></textarea>
+            <button class="primary action" type="submit">
+              上传并提交 <span aria-hidden="true">→</span>
+            </button>
+          </form>
+        </section>
+
+        <section id="detail" class="card detail" hidden aria-labelledby="title">
+          <div class="detail-header">
+            <div>
+              <p class="eyebrow">第 2 步</p>
+              <h2 id="title">查看执行</h2>
+              <p id="task-id" class="section-hint"></p>
+              <p id="status" class="status-line" role="status"></p>
+            </div>
+            <div class="task-actions">
+              <button id="retry" class="secondary" type="button" hidden>重新执行</button>
+              <button id="open-review" class="primary action" type="button" hidden>
+                核对结果 <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="summary-grid">
+            <section class="panel">
+              <h3>任务描述</h3>
+              <pre id="prompt" class="prompt"></pre>
+            </section>
+            <section class="panel">
+              <h3>执行结果</h3>
+              <pre id="reply" class="prompt">任务完成后显示 Pi 的最终回复。</pre>
+            </section>
+          </div>
+
+          <section class="panel log-panel">
+            <div class="panel-heading">
+              <h3>运行日志</h3>
+              <span class="muted">实时</span>
+            </div>
+            <pre id="logs" class="logs"></pre>
+          </section>
+
+          <section class="files-section">
+            <div class="files-heading">
+              <div>
+                <p class="eyebrow">WORKSPACE FILES</p>
+                <h3>工作区文件</h3>
+              </div>
+              <span class="muted">点击文件名可预览</span>
+            </div>
+            <div class="file-groups">
+              <section class="file-group input-group">
+                <div class="group-title">
+                  <span class="file-icon">↗</span>
+                  <div>
+                    <h4>输入文件</h4>
+                    <p>任务开始前准备的文件</p>
+                  </div>
+                </div>
+                <ul id="in"></ul>
+              </section>
+              <section class="file-group process-group">
+                <div class="group-title">
+                  <span class="file-icon">◌</span>
+                  <div>
+                    <h4>过程文件</h4>
+                    <p>执行中产生的中间资料</p>
+                  </div>
+                </div>
+                <ul id="process"></ul>
+              </section>
+              <section class="file-group result-group">
+                <div class="group-title">
+                  <span class="file-icon">✓</span>
+                  <div>
+                    <h4>结果文件</h4>
+                    <p>任务最终生成的文件</p>
+                  </div>
+                </div>
+                <ul id="result-files"></ul>
+              </section>
+            </div>
+          </section>
+
+          <section id="preview" class="panel preview" hidden>
+            <div class="panel-heading">
+              <h3 id="filename"></h3>
+              <button id="close-preview" class="quiet">收起</button>
+            </div>
+            <div id="contents"></div>
+          </section>
+        </section>
+
+        <section id="review-pane" class="card detail" hidden aria-labelledby="review-title">
+          <div class="detail-header">
+            <div>
+              <p class="eyebrow">第 3 步</p>
+              <h2 id="review-title" tabindex="-1">核对提取结果</h2>
+              <p class="section-hint">核对后可直接修改字段值，判定来源和原文证据供对照。</p>
+            </div>
+            <button id="back-run" class="quiet" type="button">返回执行详情</button>
+          </div>
+          <p id="review-message" class="section-hint" role="status"></p>
+          <form id="review-form" hidden>
+            <div class="review-toolbar">
+              <p id="review-save-status" class="section-hint" role="status"></p>
+              <button id="save-review" class="primary action" type="submit" disabled>
+                保存修改
+              </button>
+            </div>
+            <div id="review-fields" class="review-fields"></div>
+          </form>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

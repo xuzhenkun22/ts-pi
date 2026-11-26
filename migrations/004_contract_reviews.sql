@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS contract_reviews (
+  task_id CHAR(36) CHARACTER SET ascii PRIMARY KEY,
+  result_json JSON NOT NULL,
+  revision INT UNSIGNED NOT NULL,
+  updated_at DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  FOREIGN KEY (task_id) REFERENCES contract_results(task_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

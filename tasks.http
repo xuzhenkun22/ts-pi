@@ -1,0 +1,59 @@
+@host = http://127.0.0.1:3000
+@taskId = REPLACE_WITH_TASK_ID
+
+### 上传文件并提交（自动生成 UUID 工作区，可重复添加 files 字段）
+POST {{host}}/api/tasks
+Content-Type: multipart/form-data; boundary=PiTaskUpload
+
+--PiTaskUpload
+Content-Disposition: form-data; name="prompt"
+
+读取上传资料并提取合同信息。
+--PiTaskUpload
+Content-Disposition: form-data; name="files"; filename="sample.txt"
+Content-Type: text/plain
+
+< ./workspaces/demo/in/sample.txt
+--PiTaskUpload--
+
+### 旧版 JSON 提交（每个目录只能提交一次）
+POST {{host}}/api/tasks
+Content-Type: application/json
+
+{
+  "taskid": "demo",
+  "prompt": "读取 in/sample.txt，用一句话总结，并将结果保存到 out/summary.md。"
+}
+
+### 提交合同提取任务（启用 contract-info-extraction 时，请先准备 contract-001/in/）
+POST {{host}}/api/tasks
+Content-Type: application/json
+
+{
+  "taskid": "contract-001",
+  "prompt": "提取 in/ 中的合同要素，保留 OCR 等过程文件。"
+}
+
+### 任务列表
+GET {{host}}/api/tasks
+
+### 任务详情（将 taskId 替换为提交接口返回的值）
+GET {{host}}/api/tasks/{{taskId}}
+
+### 失败任务重执行（会先归档并清空 out，确认前请检查输出文件清单）
+POST {{host}}/api/tasks/{{taskId}}/retry
+
+### 增量日志
+GET {{host}}/api/tasks/{{taskId}}/logs?after=0
+
+### 输入文件
+GET {{host}}/api/tasks/{{taskId}}/files?side=in
+
+### 输出文件
+GET {{host}}/api/tasks/{{taskId}}/files?side=out
+
+### 从 MySQL 查询合同提取 JSON
+GET {{host}}/api/tasks/{{taskId}}/contract-result
+
+### 预览总结
+GET {{host}}/api/tasks/{{taskId}}/file?side=out&name=summary.md

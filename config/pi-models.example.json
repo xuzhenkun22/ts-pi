@@ -1,0 +1,10 @@
+{
+  "providers": {
+    "relay": {
+      "baseUrl": "https://relay.example.com/v1",
+      "api": "openai-completions",
+      "apiKey": "$RELAY_API_KEY",
+      "models": [{ "id": "gpt-6.2-sol", "name": "GPT 6.2 Sol" }]
+    }
+  }
+}

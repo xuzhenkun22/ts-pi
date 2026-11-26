@@ -1,0 +1,10 @@
+node_modules/
+.env
+workspaces/
+.pi-runtime/
+.idea/
+dist
+build
+coverage
+*.log
+.DS_Store
