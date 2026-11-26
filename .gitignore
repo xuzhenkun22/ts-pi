@@ -1,7 +1,9 @@
+.idea/
 node_modules/
-.env
+# .env
 .pi-runtime/
 workspaces/*
 !workspaces/demo/
 workspaces/demo/*
 !workspaces/demo/in/
+.gitignore
